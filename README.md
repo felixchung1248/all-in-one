@@ -7,10 +7,14 @@ This repository allows you to quickly spin up a data management platform made wi
 
 
 ## Pre-requisite
-1. Prepare a machine running in Ubuntu. (Mine was Ubuntu 20.04 with 8vcpu / 32g memory in Azure when I developed this platform). I recommend a new and clean machine to avoid any issue
-2. Install Docker, Kubernetes and Jenkins in the machine
+1. Prepare a machine running in Ubuntu with Internet access. (Mine was Ubuntu 20.04 with 8vcpu / 32g memory in Azure when I developed this platform). I recommend a new and clean machine to avoid any issue
+2. Install JDK, Docker, Kubernetes and Jenkins in the machine
 
 ```bash
+# Install JDK
+sudo apt update
+sudo apt install fontconfig openjdk-17-jre
+
 # Add Docker's official GPG key:
 sudo apt-get update
 sudo apt-get install ca-certificates curl
