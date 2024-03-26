@@ -1,0 +1,17 @@
+replicaCount: 1
+
+image:
+  repository: dataopennesscommunity/denodo
+  pullPolicy: Always
+  tag: "latest"
+
+service:
+  type: NodePort
+  port: 9090
+  targetPort: 9090
+  nodePort: 30190
+  nodePortSandbox: 30290
+  nodePortMeta: 30999
+  nodePortMetaSandbox: 31999
+  nodePortDb: 30996
+  nodePortDbSandbox: 31996

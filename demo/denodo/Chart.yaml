@@ -1,0 +1,4 @@
+apiVersion: v2
+name: denodo
+description: A Helm chart for denodo
+version: 8.0.0

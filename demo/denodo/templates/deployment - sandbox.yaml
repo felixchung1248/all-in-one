@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ printf "%s-sandbox" (include "denodo.fullname" .) | trunc 63 | trimSuffix "-" }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ printf "%s-sandbox" (include "denodo.name" .) | trunc 63 | trimSuffix "-" }}
+  template:
+    metadata:
+      labels:
+        app: {{ printf "%s-sandbox" (include "denodo.name" .) | trunc 63 | trimSuffix "-" }}
+    spec:
+      initContainers:
+        - name: init-volume
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/bin/sh", "-c", 'if [ -z "$(ls -A /tmp)" ]; then cp -R /opt/denodo/metadata/* /tmp/; fi']
+          volumeMounts:
+          - name:  {{ printf "%s-sandbox" (include "denodo.name" .) | trunc 63 | trimSuffix "-" }}-storage
+            mountPath:  /tmp
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 9999
+            - containerPort: 9997
+            - containerPort: 9996
+            - containerPort: 9995
+            - containerPort: 9090
+          args: ["--vdpserver", "--designstudio", "--datacatalog"]
+          env:
+            - name: DENODO_WEBCONTAINER_STARTUP
+              value: "true"
+          volumeMounts:
+            - mountPath: "/opt/denodo/metadata"
+              name: {{ printf "%s-sandbox" (include "denodo.name" .) | trunc 63 | trimSuffix "-" }}-storage
+      volumes:
+        - name: {{ printf "%s-sandbox" (include "denodo.name" .) | trunc 63 | trimSuffix "-" }}-storage
+          persistentVolumeClaim:
+            claimName: {{ printf "%s-sandbox" (include "denodo.name" .) | trunc 63 | trimSuffix "-" }}-pvc
