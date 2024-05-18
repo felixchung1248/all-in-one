@@ -1,4 +1,11 @@
 #!/bin/bash
+DATAHUB_NAMESPACE=datahub-ns
+DENODO_NAMESPACE=denodo-ns
+JENKINS_NAMESPACE=jenkins-ns
+MARIADB_NAMESPACE=mariadb-ns
+MINIO_NAMESPACE=minio-ns
+ZAMMAD_NAMESPACE=zammad-ns
+
 echo current user: $USER
 echo home path: $HOME
 # Add Docker's official GPG key:
@@ -38,18 +45,22 @@ sg microk8s -c "microk8s enable hostpath-storage"
 sg microk8s -c "microk8s config > $HOME/.kube/config"
 
 # Create the namespace if it doesn't exist
-kubectl get namespace datahub-ns &> /dev/null || kubectl create namespace datahub-ns
-kubectl get namespace denodo-ns &> /dev/null || kubectl create namespace denodo-ns
-kubectl get namespace spinnaker-ns &> /dev/null || kubectl create namespace spinnaker-ns
-kubectl get namespace mariadb-ns &> /dev/null || kubectl create namespace mariadb-ns
-kubectl get namespace minio-ns &> /dev/null || kubectl create namespace minio-ns
-kubectl get namespace zammad-ns &> /dev/null || kubectl create namespace zammad-ns
+kubectl get namespace $DATAHUB_NAMESPACE &> /dev/null || kubectl create namespace $DATAHUB_NAMESPACE
+kubectl get namespace $DENODO_NAMESPACE &> /dev/null || kubectl create namespace $DENODO_NAMESPACE
+kubectl get namespace $JENKINS_NAMESPACE &> /dev/null || kubectl create namespace $JENKINS_NAMESPACE
+kubectl get namespace $MARIADB_NAMESPACE &> /dev/null || kubectl create namespace $MARIADB_NAMESPACE
+kubectl get namespace $MINIO_NAMESPACE &> /dev/null || kubectl create namespace $MINIO_NAMESPACE
+kubectl get namespace $ZAMMAD_NAMESPACE &> /dev/null || kubectl create namespace $ZAMMAD_NAMESPACE
+
+# Create required secrets
+kubectl get secret mysql-secrets -n $DATAHUB_NAMESPACE &> /dev/null || kubectl create secret generic mysql-secrets --from-literal=mysql-root-password='datahub' -n $DATAHUB_NAMESPACE
 
 
-helm install datahub-prerequisites ./demo/datahub-prerequisites -n datahub-ns
-helm install denodo ./demo/denodo -n denodo-ns
-helm install spinnaker ./demo/spinnaker -n spinnaker-ns
-helm install mariadb ./demo/mariadb -n mariadb-ns
-helm install minio ./demo/minio -n minio-ns
-helm install zammad ./demo/zammad -n zammad-ns
+helm install datahub-prerequisites ./demo/datahub-prerequisites -n $DATAHUB_NAMESPACE
+helm install denodo ./demo/denodo -n $DENODO_NAMESPACE
+helm install jenkins ./demo/jenkins -n $JENKINS_NAMESPACE
+helm install mariadb ./demo/mariadb -n $MARIADB_NAMESPACE
+helm install minio ./demo/minio -n $MINIO_NAMESPACE
+helm install zammad ./demo/zammad -n $ZAMMAD_NAMESPACE
+helm install datahub ./demo/datahub -n $DATAHUB_NAMESPACE
 
