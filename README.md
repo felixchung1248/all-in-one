@@ -14,9 +14,9 @@ chmod +x setup.sh
 ./setup.sh
 
 ```
-4. Re-login the machine and run the below command
+4. Relogin the VM and open the proxy so you can access the K8s dashboard through browser
 ```bash
-microk8s enable dashboard dns ingress
+microk8s dashboard-proxy
 ```
 5. Login to Jenkins using the below command to get the key
 ![App Screenshot](https://live.staticflickr.com/65535/53514564865_48716bfc9b_o_d.png)

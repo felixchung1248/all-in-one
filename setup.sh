@@ -38,9 +38,9 @@ sg microk8s -c "microk8s enable hostpath-storage"
 sg microk8s -c "microk8s config > $HOME/.kube/config"
 
 # Create the namespace if it doesn't exist
-kubectl get namespace datahub-prerequisites-ns &> /dev/null || kubectl create namespace datahub-ns
+kubectl get namespace datahub-ns &> /dev/null || kubectl create namespace datahub-ns
 kubectl get namespace denodo-ns &> /dev/null || kubectl create namespace denodo-ns
-kubectl get namespace jenkins-ns &> /dev/null || kubectl create namespace jenkins-ns
+kubectl get namespace spinnaker-ns &> /dev/null || kubectl create namespace spinnaker-ns
 kubectl get namespace mariadb-ns &> /dev/null || kubectl create namespace mariadb-ns
 kubectl get namespace minio-ns &> /dev/null || kubectl create namespace minio-ns
 kubectl get namespace zammad-ns &> /dev/null || kubectl create namespace zammad-ns
@@ -48,7 +48,8 @@ kubectl get namespace zammad-ns &> /dev/null || kubectl create namespace zammad-
 
 helm install datahub-prerequisites ./demo/datahub-prerequisites -n datahub-ns
 helm install denodo ./demo/denodo -n denodo-ns
-helm install jenkins ./demo/jenkins -n jenkins-ns
+helm install spinnaker ./demo/spinnaker -n spinnaker-ns
 helm install mariadb ./demo/mariadb -n mariadb-ns
 helm install minio ./demo/minio -n minio-ns
 helm install zammad ./demo/zammad -n zammad-ns
+
