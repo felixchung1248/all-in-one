@@ -504,8 +504,17 @@ controller:
     configUrls: []
     # - https://acme.org/jenkins.yaml
     # -- List of Jenkins Config as Code scripts
-    configScripts: {}
-    #  welcome-message: |
+    configScripts: 
+      welcome-message: |
+        credentials:
+            system:
+                domainCredentials:
+                - credentials:
+                    - string:
+                        scope: GLOBAL
+                        id: "remote-token"
+                        secret: "12345678"
+                        description: "This is a secret text credential"
     #    jenkins:
     #      systemMessage: Welcome to our CI\CD server. This Jenkins is configured and managed 'as code'.
 
