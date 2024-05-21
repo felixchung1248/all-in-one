@@ -397,6 +397,7 @@ controller:
     - workflow-aggregator:596.v8c21c963d92d
     - git:5.2.1
     - configuration-as-code:1775.v810dc950b_514
+    - job-dsl:1.77
 
   # If set to false, Jenkins will download the minimum required version of all dependencies.
   # -- Download the minimum required version or latest version of all dependencies
@@ -515,6 +516,33 @@ controller:
                         id: "remote-token"
                         secret: "12345678"
                         description: "This is a secret text credential"
+                    - usernamePassword:
+                        id: "git-credentials-id"
+                        username: "felix.chung@felixchung.org"
+                        password: ""
+                        description: "Git Repository Credentials"
+        jobs:
+            - script: >
+                folder('CD') {
+                    description('This folder contains CD pipelines')
+                }
+            - script: >
+                pipelineJob('CD/my-pipeline-job') {
+                    definition {
+                        cpsScm {
+                            scm {
+                                git {
+                                    remote {
+                                        url('https://github.com/felixchung1248/dataset-deploy-pipeline.git')
+                                        credentials('git-credentials-id')
+                                    }
+                                    branches('*/master')
+                                    scriptPath('Jenkinsfile')
+                                }
+                            }
+                        }
+                    }
+                }
     #    jenkins:
     #      systemMessage: Welcome to our CI\CD server. This Jenkins is configured and managed 'as code'.
 
