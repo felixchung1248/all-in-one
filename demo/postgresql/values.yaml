@@ -356,6 +356,15 @@ primary:
                 FOREIGN KEY (Guest_ID) REFERENCES Guests(Guest_ID)
             );
             
+            CREATE TABLE Operations (
+                Operation_ID SERIAL PRIMARY KEY,
+                Date DATE,
+                Room_Number INT,
+                Staff_Assigned INT,
+                Maintenance_Issues BOOLEAN,
+                Cleaning_Score INT
+            );
+            
             INSERT INTO Guests (Guest_Name, Check_In_Date, Check_Out_Date, Room_Number) VALUES
             ('John Doe', '2024-05-01', '2024-05-05', 101),
             ('Jane Smith', '2024-05-02', '2024-05-06', 102),

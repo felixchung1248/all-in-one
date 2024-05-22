@@ -2,7 +2,7 @@
 DATAHUB_NAMESPACE=datahub-ns
 DENODO_NAMESPACE=denodo-ns
 JENKINS_NAMESPACE=jenkins-ns
-MARIADB_NAMESPACE=mariadb-ns
+POSTGRESQL_NAMESPACE=postgresql-ns
 MINIO_NAMESPACE=minio-ns
 ZAMMAD_NAMESPACE=zammad-ns
 
@@ -48,7 +48,7 @@ sg microk8s -c "microk8s config > $HOME/.kube/config"
 kubectl get namespace $DATAHUB_NAMESPACE &> /dev/null || kubectl create namespace $DATAHUB_NAMESPACE
 kubectl get namespace $DENODO_NAMESPACE &> /dev/null || kubectl create namespace $DENODO_NAMESPACE
 kubectl get namespace $JENKINS_NAMESPACE &> /dev/null || kubectl create namespace $JENKINS_NAMESPACE
-kubectl get namespace $MARIADB_NAMESPACE &> /dev/null || kubectl create namespace $MARIADB_NAMESPACE
+kubectl get namespace $POSTGRESQL_NAMESPACE &> /dev/null || kubectl create namespace $POSTGRESQL_NAMESPACE
 kubectl get namespace $MINIO_NAMESPACE &> /dev/null || kubectl create namespace $MINIO_NAMESPACE
 kubectl get namespace $ZAMMAD_NAMESPACE &> /dev/null || kubectl create namespace $ZAMMAD_NAMESPACE
 
@@ -56,10 +56,11 @@ kubectl get namespace $ZAMMAD_NAMESPACE &> /dev/null || kubectl create namespace
 kubectl get secret mysql-secrets -n $DATAHUB_NAMESPACE &> /dev/null || kubectl create secret generic mysql-secrets --from-literal=mysql-root-password='datahub' -n $DATAHUB_NAMESPACE
 
 
-helm install datahub-prerequisites ./demo/datahub-prerequisites -n $DATAHUB_NAMESPACE
+helm install prerequisites ./demo/datahub-prerequisites -n $DATAHUB_NAMESPACE
 helm install denodo ./demo/denodo -n $DENODO_NAMESPACE
 helm install jenkins ./demo/jenkins -n $JENKINS_NAMESPACE
-helm install mariadb ./demo/mariadb -n $MARIADB_NAMESPACE
+helm install postgresql ./demo/postgresql -n $POSTGRESQL_NAMESPACE
+helm install pgadmin ./demo/pgadmin -n $POSTGRESQL_NAMESPACE
 helm install minio ./demo/minio -n $MINIO_NAMESPACE
 helm install zammad ./demo/zammad -n $ZAMMAD_NAMESPACE
 helm install datahub ./demo/datahub -n $DATAHUB_NAMESPACE

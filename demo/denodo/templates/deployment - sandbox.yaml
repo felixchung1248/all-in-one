@@ -34,6 +34,10 @@ spec:
           env:
             - name: DENODO_WEBCONTAINER_STARTUP
               value: "true"
+            - name: JAVA_HOME
+              value: /opt/denodo/jre
+            - name: PATH
+              value: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/denodo/jre/bin
           volumeMounts:
             - mountPath: "/opt/denodo/metadata"
               name: {{ printf "%s-sandbox" (include "denodo.name" .) | trunc 63 | trimSuffix "-" }}-storage
