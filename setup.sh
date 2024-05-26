@@ -5,6 +5,7 @@ JENKINS_NAMESPACE=jenkins-ns
 POSTGRESQL_NAMESPACE=postgresql-ns
 MINIO_NAMESPACE=minio-ns
 ZAMMAD_NAMESPACE=zammad-ns
+TIMEOUT=15m0s
 
 echo current user: $USER
 echo home path: $HOME
@@ -56,12 +57,12 @@ kubectl get namespace $ZAMMAD_NAMESPACE &> /dev/null || kubectl create namespace
 kubectl get secret mysql-secrets -n $DATAHUB_NAMESPACE &> /dev/null || kubectl create secret generic mysql-secrets --from-literal=mysql-root-password='datahub' -n $DATAHUB_NAMESPACE
 
 
-helm install prerequisites ./demo/datahub-prerequisites -n $DATAHUB_NAMESPACE
-helm install denodo ./demo/denodo -n $DENODO_NAMESPACE
-helm install jenkins ./demo/jenkins -n $JENKINS_NAMESPACE
-helm install postgresql ./demo/postgresql -n $POSTGRESQL_NAMESPACE
-helm install pgadmin ./demo/pgadmin -n $POSTGRESQL_NAMESPACE
-helm install minio ./demo/minio -n $MINIO_NAMESPACE
-helm install zammad ./demo/zammad -n $ZAMMAD_NAMESPACE
-helm install datahub ./demo/datahub -n $DATAHUB_NAMESPACE
+helm install postgresql ./demo/postgresql -n $POSTGRESQL_NAMESPACE --timeout $TIMEOUT
+helm install prerequisites ./demo/datahub-prerequisites -n $DATAHUB_NAMESPACE --timeout $TIMEOUT
+helm install jenkins ./demo/jenkins -n $JENKINS_NAMESPACE --timeout $TIMEOUT
+helm install pgadmin ./demo/pgadmin -n $POSTGRESQL_NAMESPACE --timeout $TIMEOUT
+helm install minio ./demo/minio -n $MINIO_NAMESPACE --timeout $TIMEOUT
+helm install zammad ./demo/zammad -n $ZAMMAD_NAMESPACE --timeout $TIMEOUT
+helm install denodo ./demo/denodo -n $DENODO_NAMESPACE --timeout $TIMEOUT
+helm install datahub ./demo/datahub -n $DATAHUB_NAMESPACE --timeout $TIMEOUT
 

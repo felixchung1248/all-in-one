@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ .Release.Name }}-dependency-check-job"
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "5"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    spec:
+      containers:
+      - name: create-datasource-and-baseview
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        env:
+            - name: JAVA_HOME
+              value: /opt/denodo/jre
+            - name: PATH
+              value: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/denodo/jre/bin
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          echo "Checking if dependency service is ready..."
+          until /opt/denodo/bin/ping.sh denodo-sandbox.denodo-ns:9999; do
+            echo "Waiting for dependency service to be ready..."
+            sleep 10
+          done
+          echo "Dependency service is now ready."
+          sed -i 's|%{INSTALL_PATH}|/opt/denodo|g' /opt/denodo/samples/vdp/vdp-clients/scripts/test_jdbcclient.sh
+          sed -i 's|%{INSTALL_PATH}|/opt/denodo|g' /opt/denodo/samples/vdp/vdp-clients/scripts/compile_jdbcclient.sh
+          /opt/denodo/samples/vdp/vdp-clients/scripts/compile_jdbcclient.sh
+          /opt/denodo/samples/vdp/vdp-clients/scripts/test_jdbcclient.sh "jdbc:vdb://denodo-sandbox.denodo-ns:9999/admin" admin admin "CREATE OR REPLACE DATASOURCE JDBC demodb01     DRIVERCLASSNAME = 'org.postgresql.Driver'     DATABASEURI = 'jdbc:postgresql://postgresql.postgresql-ns:5432/demodb01'     USERNAME = 'felixchung'     USERPASSWORD = 'ypaQmtecNo90cqqTYE+jpFwpZ47kB8cJJZ88rDNlIt995fQeJEbLQsC3wn4AVQrPpRBFNSsmiwtxgoup8oT2CuCsOXxGRuiSH3j42fOf5sj6PFE4LyBSW8cs6hsHz1ks' ENCRYPTED     CLASSPATH = 'postgresql-12'     DATABASENAME = 'postgresql'     DATABASEVERSION = '12'     FETCHSIZE = 1000     VALIDATIONQUERY = 'Select 1'     INITIALSIZE = 4     MAXIDLE = -1     MINIDLE = 0     MAXACTIVE = 20     EXHAUSTEDACTION = 1     TESTONBORROW = true     TESTONRETURN = false     TESTWHILEIDLE = false     TIMEBETWEENEVICTION = -1     NUMTESTPEREVICTION = 3     MINEVICTABLETIME = 1800000     POOLPREPAREDSTATEMENTS = false     MAXOPENPREPAREDSTATEMENTS = -1     PROPERTIES ('escapeSyntaxCallMode'='callIfNoReturn')     KERBEROSPROPERTIES ('jaasLogin'='false', 'user'='<user>')     DATA_LOAD_CONFIGURATION (         BATCHINSERTSIZE = 200     )"
+          INPUT=`/opt/denodo/samples/vdp/vdp-clients/scripts/test_jdbcclient.sh "jdbc:vdb://denodo-sandbox.denodo-ns:9999/admin" admin admin "select table_name from GET_JDBC_DATASOURCE_TABLES('demodb01',null,'public',null,'TABLE')"`
+          TABLENAME=$(echo $INPUT | awk -v RS="|" -v FS="\n" '/table_name:VARCHAR/{flag=1; next} flag && NF && !/^\s*$/ {gsub(/^[ \t]+|[ \t]+$/, "", $1); if ($1 !~ /table_name:VARCHAR/) print $1; else flag=0}')
+          for table in $TABLENAME;do 
+            INPUT=`/opt/denodo/samples/vdp/vdp-clients/scripts/test_jdbcclient.sh "jdbc:vdb://denodo-sandbox.denodo-ns:9999/admin" admin admin "select creation_vql from GENERATE_VQL_TO_CREATE_JDBC_BASE_VIEW ('demodb01',null,'public','${table}','${table}',null,null)"`
+            create_statements=$(echo "$INPUT" | awk -v RS="|" '/CREATE OR REPLACE/{print $0}')
+            export IFS=";"
+            for vql in $create_statements;do
+                /opt/denodo/samples/vdp/vdp-clients/scripts/test_jdbcclient.sh "jdbc:vdb://denodo-sandbox.denodo-ns:9999/admin" admin admin $vql
+            done
+          done
+      restartPolicy: Never
+  backoffLimit: 6
