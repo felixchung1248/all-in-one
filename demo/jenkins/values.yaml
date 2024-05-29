@@ -527,7 +527,7 @@ controller:
                     description('This folder contains CD pipelines')
                 }
             - script: >
-                pipelineJob('CD/my-pipeline-job') {
+                pipelineJob('CD/dataset-deploy') {
                     definition {
                         cpsScm {
                             scm {

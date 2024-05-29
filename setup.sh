@@ -1,10 +1,6 @@
 #!/bin/bash
+CONFIG_FILE="namespace.conf"
 DATAHUB_NAMESPACE=datahub-ns
-DENODO_NAMESPACE=denodo-ns
-JENKINS_NAMESPACE=jenkins-ns
-POSTGRESQL_NAMESPACE=postgresql-ns
-MINIO_NAMESPACE=minio-ns
-ZAMMAD_NAMESPACE=zammad-ns
 TIMEOUT=15m0s
 
 echo current user: $USER
@@ -45,24 +41,25 @@ sg microk8s -c "microk8s start"
 sg microk8s -c "microk8s enable hostpath-storage"
 sg microk8s -c "microk8s config > $HOME/.kube/config"
 
-# Create the namespace if it doesn't exist
-kubectl get namespace $DATAHUB_NAMESPACE &> /dev/null || kubectl create namespace $DATAHUB_NAMESPACE
-kubectl get namespace $DENODO_NAMESPACE &> /dev/null || kubectl create namespace $DENODO_NAMESPACE
-kubectl get namespace $JENKINS_NAMESPACE &> /dev/null || kubectl create namespace $JENKINS_NAMESPACE
-kubectl get namespace $POSTGRESQL_NAMESPACE &> /dev/null || kubectl create namespace $POSTGRESQL_NAMESPACE
-kubectl get namespace $MINIO_NAMESPACE &> /dev/null || kubectl create namespace $MINIO_NAMESPACE
-kubectl get namespace $ZAMMAD_NAMESPACE &> /dev/null || kubectl create namespace $ZAMMAD_NAMESPACE
+# First loop: Create all namespaces
+declare -A namespace_created
+while IFS=',' read -r namespace path chart; do
+  # Check if the namespace has already been processed
+  if [ -z "${namespace_created[$namespace]}" ]; then
+    kubectl get namespace "$namespace" &> /dev/null || kubectl create namespace "$namespace"
+    namespace_created[$namespace]=1
+  fi
+done < "$CONFIG_FILE"
 
 # Create required secrets
 kubectl get secret mysql-secrets -n $DATAHUB_NAMESPACE &> /dev/null || kubectl create secret generic mysql-secrets --from-literal=mysql-root-password='datahub' -n $DATAHUB_NAMESPACE
+[ ! -z $OPENAI_KEY ] && kubectl create secret generic openai-secret --from-literal=openai-key=${OPENAI_KEY} --namespace=langchain-chatbot-denodo-ns
+
+# Second loop: Deploy Helm charts
+while IFS=',' read -r namespace path chart; do
+  # Deploy the specified Helm chart to the namespace
+  helm install "$chart" "$path" -n "$namespace" --timeout $TIMEOUT
+done < "$CONFIG_FILE"
 
 
-helm install postgresql ./demo/postgresql -n $POSTGRESQL_NAMESPACE --timeout $TIMEOUT
-helm install prerequisites ./demo/datahub-prerequisites -n $DATAHUB_NAMESPACE --timeout $TIMEOUT
-helm install jenkins ./demo/jenkins -n $JENKINS_NAMESPACE --timeout $TIMEOUT
-helm install pgadmin ./demo/pgadmin -n $POSTGRESQL_NAMESPACE --timeout $TIMEOUT
-helm install minio ./demo/minio -n $MINIO_NAMESPACE --timeout $TIMEOUT
-helm install zammad ./demo/zammad -n $ZAMMAD_NAMESPACE --timeout $TIMEOUT
-helm install denodo ./demo/denodo -n $DENODO_NAMESPACE --timeout $TIMEOUT
-helm install datahub ./demo/datahub -n $DATAHUB_NAMESPACE --timeout $TIMEOUT
 

@@ -14,8 +14,9 @@ image:
     # - name: "image-pull-secret"
 
 service:
-  type: ClusterIP
+  type: NodePort
   port: 8080
+  nodePort: 30880
 
 ingress:
   enabled: false

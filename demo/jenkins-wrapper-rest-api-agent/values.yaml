@@ -1,0 +1,18 @@
+replicaCount: 1
+
+image:
+  repository: dataopennesscommunity/demo-golden
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 5000
+  targetPort: 5000
+
+ingress:
+  enabled: true
+  pathPrefix: /run-jenkins
+  # annotations, hosts, and other configurations go here
+
+resources: {}

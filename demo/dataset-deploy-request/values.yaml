@@ -1,0 +1,21 @@
+replicaCount: 1
+
+image:
+  repository: dataopennesscommunity/demo-golden
+  pullPolicy: Always
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 5001
+  targetPort: 5001
+
+ingress:
+  enabled: true
+  pathPrefix: /submit-ticket
+  # annotations, hosts, and other configurations go here
+
+env:
+  TICKET_SYS_URL: http://zammad.zammad-ns.svc.cluster.local:8080/api/v1/tickets
+  TICKET_SYS_USER: felix.chung@felixchung.org
+  TICKET_SYS_PW: ZAQ!2wsxcde3
