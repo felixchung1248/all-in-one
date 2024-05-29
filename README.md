@@ -9,6 +9,7 @@ This repository allows you to quickly spin up a data management platform made wi
 2. Copy the setup.sh file from this repository into your machine
 3. Run the setup.sh as below to Docker, Kubernetes and Helm in the machine
 ```bash
+export OPENAI_KEY=<Your OpenAI API key>  ## can skip this step if you don't need to use GenAI chatbot
 ## Go to the directory containing the setup.sh
 chmod +x setup.sh
 ./setup.sh
