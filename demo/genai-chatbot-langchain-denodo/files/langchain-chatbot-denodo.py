@@ -23,27 +23,6 @@ app = Flask(__name__)
 denodo_url=os.environ['DENODO_URL']
 genai_model=os.environ['GENAI_MODEL']
 
-def convert_to_quoted_path(path):
-    # Split the path by slashes and quote each part
-    parts = path.split('/')
-    quoted_parts = ['"{}"'.format(part) for part in parts]
-    # Join the quoted parts with periods
-    quoted_path = '.'.join(quoted_parts)
-    return quoted_path
-
-# def make_query(query, client, headers):
-#     ## Get Schema Description and build headers
-#     flight_desc = flight.FlightDescriptor.for_command(query)
-#     options = flight.FlightCallOptions(headers=headers)
-#     schema = client.get_schema(flight_desc, options)
-
-#     ## Get ticket to for query execution, used to get results
-#     flight_info = client.get_flight_info(flight.FlightDescriptor.for_command(query), options)
-    
-#     ## Get Results 
-#     results = client.do_get(flight_info.endpoints[0].ticket, options)
-#     return results
-
 
 # Initialize Spark session
 spark = SparkSession.builder \
@@ -53,27 +32,33 @@ spark = SparkSession.builder \
     .getOrCreate()
 schema = "langchain_example"
 spark.sql(f"CREATE DATABASE IF NOT EXISTS {schema}")
-spark.sql(f"USE {schema}")      
+spark.sql(f"USE {schema}")   
+
+engine=db.create_engine(denodo_url)   
     
+def cache_views():
+    result_proxy = engine.execute("LIST VIEWS ALL")
+    views = result_proxy.fetchall()
 
-engine=db.create_engine(denodo_url)
-view_list=engine.execute("LIST VIEWS ALL")
-
-# Iterate over the result set and print each row
-for row in view_list:
-    view_name = row[0]  
-    # Pandas DataFrame
-    result_proxy = engine.execute(f"select * from {view_name}")
-    pandas_df = pd.DataFrame(result_proxy.fetchall())   
-    # Convert the Pandas DataFrame to a Spark DataFrame
-    spark_df = spark.createDataFrame(pandas_df) 
-    # Write the Spark DataFrame to a Spark table
-    spark_df.write.saveAsTable(view_name)
+    # Iterate over the result set and print each row
+    for row in views:
+        view_name = row[0]  
+        # Pandas DataFrame
+        result_proxy = engine.execute(f"select * from {view_name}")
+        pandas_df = pd.DataFrame(result_proxy.fetchall())   
+        # Convert the Pandas DataFrame to a Spark DataFrame
+        spark_df = spark.createDataFrame(pandas_df) 
+        # Write the Spark DataFrame to a Spark table
+        spark_df.write.saveAsTable(view_name)
+        
+    cached_views_as_turple = set((view[0], ) for view in views)
+    return cached_views_as_turple
     
+cached_views_as_turple = cache_views() 
+
+print(cached_views_as_turple)
 
 
-# Close the result set to free resources
-view_list.close()
     
 spark_sql = SparkSQL(schema=schema)
 llm = ChatOpenAI(model=genai_model,temperature=0)
@@ -82,8 +67,25 @@ agent_executor = create_spark_sql_agent(llm=llm, toolkit=toolkit, verbose=True,h
 
 @app.route('/genai-response', methods=['POST'])
 def genAiResponse():
+    global cached_views_as_turple
     # Get the JSON from the POST request body
-    try:       
+    try:   
+        result_proxy = engine.execute("LIST VIEWS ALL")
+        views = result_proxy.fetchall()
+        views_as_turple_cur = set((view[0], ) for view in views)
+        print(cached_views_as_turple)
+        print(views_as_turple_cur)
+        new_views = [d for d in views_as_turple_cur if d not in cached_views_as_turple]
+        print(new_views)
+        for view in new_views:
+            result_proxy = engine.execute(f"select * from {view}")
+            pandas_df = pd.DataFrame(result_proxy.fetchall())   
+            # Convert the Pandas DataFrame to a Spark DataFrame
+            spark_df = spark.createDataFrame(pandas_df) 
+            # Write the Spark DataFrame to a Spark table
+            spark_df.write.saveAsTable(view_name)
+
+
         json_array = request.get_json()
         msg = json_array.get('msg')       
         result = agent_executor.run(msg)

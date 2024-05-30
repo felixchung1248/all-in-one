@@ -18,5 +18,5 @@ ingress:
   proxyReadTimeout: 300
   
 denodoUrl: denodo://admin:admin@denodo.denodo-ns:9996/admin
-genAiModel: gpt-4-0125-preview
+genAiModel: gpt-4o
   

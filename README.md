@@ -25,3 +25,8 @@ microk8s dashboard-proxy
 sudo cat <path shown on the screen>
 ```
 6. Choose "Install suggested plugins"; and then skip and continue as admin; click "Not now" for Instance Configuration
+
+
+## Links
+1. http://<Your VM IP>:30290/denodo-design-studio         Denodo Sandbox
+2. http://<Your VM IP>:30880      Zammad

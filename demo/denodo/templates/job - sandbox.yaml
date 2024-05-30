@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: "{{ .Release.Name }}-dependency-check-job"
+  name: "{{ printf "%s-sandbox" (.Release.Name) }}-dependency-check-job"
   annotations:
     "helm.sh/hook": post-install
     "helm.sh/hook-weight": "5"
@@ -10,7 +10,7 @@ spec:
   template:
     spec:
       containers:
-      - name: create-datasource-and-baseview
+      - name: create-datasource-and-baseview-sandbox
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         env:
             - name: JAVA_HOME
