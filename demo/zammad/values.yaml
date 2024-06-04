@@ -8,8 +8,8 @@ image:
   # tag: "latest"  # all updates of stable versions, including major
   # tag: "develop" # bleeding-edge development version
   # If you want to use a floating version, you should also set pullPolicy: Always
-  tag: ""
-  pullPolicy: IfNotPresent
+  tag: "latest"
+  pullPolicy: Always
   imagePullSecrets: []
     # - name: "image-pull-secret"
 
@@ -128,7 +128,7 @@ zammadConfig:
       capabilities:
         drop:
           - ALL
-      readOnlyRootFilesystem: true
+      readOnlyRootFilesystem: false
       privileged: false
 
   postgresql:
@@ -174,7 +174,7 @@ zammadConfig:
       capabilities:
         drop:
           - ALL
-      readOnlyRootFilesystem: true
+      readOnlyRootFilesystem: false
       privileged: false
     trustedProxies: "['127.0.0.1', '::1']"
     webConcurrency: 0
@@ -201,7 +201,7 @@ zammadConfig:
       capabilities:
         drop:
           - ALL
-      readOnlyRootFilesystem: true
+      readOnlyRootFilesystem: false
       privileged: false
 
   tmpDirVolume:
@@ -257,7 +257,7 @@ zammadConfig:
         capabilities:
           drop:
             - ALL
-        readOnlyRootFilesystem: true
+        readOnlyRootFilesystem: false
         privileged: false
     postgresql:
       resources: {}
@@ -272,7 +272,7 @@ zammadConfig:
         capabilities:
           drop:
             - ALL
-        readOnlyRootFilesystem: true
+        readOnlyRootFilesystem: false
         privileged: false
     volumePermissions:
       enabled: true
@@ -288,7 +288,7 @@ zammadConfig:
         #   cpu: 200m
         #   memory: 512Mi
       securityContext:
-        readOnlyRootFilesystem: true
+        readOnlyRootFilesystem: false
         capabilities:
           drop:
             - ALL
@@ -308,7 +308,7 @@ zammadConfig:
         capabilities:
           drop:
             - ALL
-        readOnlyRootFilesystem: true
+        readOnlyRootFilesystem: false
         privileged: false
       customInit: ""
         #  bundle exec rails runner '…'
@@ -321,40 +321,40 @@ extraEnv: []
 # autowizard config
 # if a token is used the url hast to look like: http://zammad/#getting_started/auto_wizard/your_token_here
 autoWizard:
-  enabled: false
+  enabled: true
   # string with the autowizard config as json
-  # config: |
-  #   {
-  #     "Token": "secret_zammad_autowizard_token",
-  #     "TextModuleLocale": {
-  #       "Locale": "en-us"
-  #     },
-  #     "Users": [
-  #       {
-  #         "login": "email@example.org",
-  #         "firstname": "Zammad",
-  #         "lastname": "Admin",
-  #         "email": "email@example.org",
-  #         "organization": "ZammadTest",
-  #         "password": "YourPassword"
-  #       }
-  #     ],
-  #     "Settings": [
-  #       {
-  #         "name": "product_name",
-  #         "value": "ZammadTestSystem"
-  #       },
-  #       {
-  #         "name": "system_online_service",
-  #         "value": true
-  #       }
-  #     ],
-  #     "Organizations": [
-  #       {
-  #         "name": "ZammadTest"
-  #       }
-  #     ]
-  #   }
+  config: |
+    {
+      "Token": "abcdefgh",
+      "TextModuleLocale": {
+        "Locale": "en-us"
+      },
+      "Users": [
+        {
+          "login": "email@example.org",
+          "firstname": "Zammad",
+          "lastname": "Admin",
+          "email": "email@example.org",
+          "organization": "ZammadTest",
+          "password": "ZAQ!2wsxcde3"
+        }
+      ],
+      "Settings": [
+        {
+          "name": "product_name",
+          "value": "ZammadTestSystem"
+        },
+        {
+          "name": "system_online_service",
+          "value": true
+        }
+      ],
+      "Organizations": [
+        {
+          "name": "ZammadTest"
+        }
+      ]
+    }
 
 podAnnotations: {}
   # my-annotation: "value"
@@ -528,3 +528,8 @@ redis:
     # requests:
     #   cpu: 250m
     #   memory: 256Mi
+
+zammadHost: http://zammad.zammad-ns:8080
+zammadUsr: email@example.org
+zammadPw: ZAQ!2wsxcde3
+zammadToken: abcdefgh

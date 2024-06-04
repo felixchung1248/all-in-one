@@ -271,16 +271,11 @@ spec:
         - name: {{ .Chart.Name }}-railsserver
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command:
-            - "bundle"
-            - "exec"
-            - "puma"
-            - "-b"
-            - "tcp://[::]:3000"
-            - "-w"
-            - "{{ .Values.zammadConfig.railsserver.webConcurrency }}"
-            - "-e"
-            - "production"
+          command: ["/bin/sh", "-c"]
+          args:
+                - |
+                    rake zammad:setup:auto_wizard
+                    bundle exec puma -b tcp://[::]:3000 -w {{ .Values.zammadConfig.railsserver.webConcurrency }} -e production
           env:
             - name: TMP
               value: {{ .Values.zammadConfig.railsserver.tmpdir }}
