@@ -30,18 +30,21 @@ def test_connectivity(url, username, password, max_attempts=50, delay=10):
     print(f"Failed to connect after {max_attempts} attempts.")
     return False
 
-def post_data(url, data, username, password):
+def post_data(url, username, password, data=None):
     """
-    Post data to a URL using basic authentication.
+    Post data to a URL using basic authentication. The data field is optional.
 
     :param url: String, the URL to which the data is posted.
-    :param data: Dictionary, the JSON data to post.
     :param username: String, the username for basic auth.
     :param password: String, the password for basic auth.
+    :param data: Dictionary or None, the JSON data to post (optional).
     :return: requests.Response object.
     """
     headers = {'Content-Type': 'application/json'}
-    response = requests.post(url, json=data, auth=HTTPBasicAuth(username, password), headers=headers)
+    if data is not None:
+        response = requests.post(url, json=data, auth=HTTPBasicAuth(username, password), headers=headers)
+    else:
+        response = requests.post(url, auth=HTTPBasicAuth(username, password), headers=headers)
     return response
 
 # Example usage
@@ -136,11 +139,14 @@ if __name__ == '__main__':
     test_connectivity(f"{host}/api/v1/users",username,password)
 
     # Send the POST request
-    response1 = post_data(url, data1, username, password)
-    response2 = post_data(url, data2, username, password)
+    response1 = post_data(url, username, password, data1)
+    response2 = post_data(url, username, password, data2)
+    response3 = post_data(f"{host}/api/v1/object_manager_attributes_execute_migrations", username, password)
 
     # Print the response
     print("Status Code:", response1.status_code)
     print("Response Body:", response1.text)
     print("Status Code:", response2.status_code)
     print("Response Body:", response2.text)
+    print("Status Code:", response3.status_code)
+    print("Response Body:", response3.text)
