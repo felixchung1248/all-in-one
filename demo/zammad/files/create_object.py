@@ -143,6 +143,8 @@ if __name__ == '__main__':
     response2 = post_data(url, username, password, data2)
     response3 = post_data(f"{host}/api/v1/object_manager_attributes_execute_migrations", username, password)
 
+    response4 = requests.delete(f"{host}/api/v1/tickets/1", auth=HTTPBasicAuth(username, password), headers={'Content-Type': 'application/json'})
+
     # Print the response
     print("Status Code:", response1.status_code)
     print("Response Body:", response1.text)

@@ -72,7 +72,7 @@ def submitTicket():
     payload = {
         "title": f"Deploy {datasetPath}",
         "group": "Users",
-        "customer": "felix.chung@felixchung.org",
+        "customer": user,
         "approved": False,
         "datasetname": datasetPath,
         "article": {

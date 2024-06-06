@@ -7,15 +7,12 @@ image:
 
 service:
   type: ClusterIP
-  port: 5001
-  targetPort: 5001
+  port: 5005
+  targetPort: 5005
 
 ingress:
   enabled: true
-  pathPrefix: /submit-ticket
   # annotations, hosts, and other configurations go here
 
-env:
-  TICKET_SYS_URL: http://zammad.zammad-ns.svc.cluster.local:8080/api/v1/tickets
-  TICKET_SYS_USER: email@example.org
-  TICKET_SYS_PW: ZAQ!2wsxcde3
+sandboxUrl: http://denodo-sandbox.denodo-ns:9090/denodo-restfulws
+prodUrl: http://denodo.denodo-ns:9090/denodo-restfulws
