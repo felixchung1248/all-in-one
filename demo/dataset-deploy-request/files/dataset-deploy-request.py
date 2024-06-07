@@ -41,6 +41,8 @@ def submitTicket():
     batchKey = data[0].get("batch_key")
     datasetName = data[0].get("dataset_name")
     folderPath = data[0].get("folder_path")
+    customer = data[0].get("customer")
+
 
     # Create an in-memory string buffer
     output = io.StringIO()
@@ -72,7 +74,7 @@ def submitTicket():
     payload = {
         "title": f"Deploy {datasetPath}",
         "group": "Users",
-        "customer": user,
+        "customer": customer,
         "approved": False,
         "datasetname": datasetPath,
         "article": {

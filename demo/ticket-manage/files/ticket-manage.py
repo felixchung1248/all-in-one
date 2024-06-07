@@ -33,7 +33,17 @@ def ListTicket():
 
     if response.status_code == 200:
        result = response.json()
-       return result
+       users = result.get('assets').get('User')
+       tickets = result.get('assets').get('Ticket')
+       for ticket_id, ticket_info in tickets.items():
+            customer_id = str(ticket_info['customer_id'])  # Ensure the key is a string for lookup
+            user_info = users.get(customer_id, {})  # Get user details or an empty dict if not found
+
+            # Adding user details to the ticket information
+            ticket_info['customer_firstname'] = user_info.get('firstname', 'Unknown')
+            ticket_info['customer_lastname'] = user_info.get('lastname', 'Unknown')
+            ticket_info['customer_email'] = user_info.get('email', 'Unknown')
+       return tickets
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=6080)

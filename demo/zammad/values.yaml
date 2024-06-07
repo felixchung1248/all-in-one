@@ -338,6 +338,14 @@ autoWizard:
           "organization": "ZammadTest",
           "password": "ZAQ!2wsxcde3"
         }
+        ,{
+          "login": "user@example.org",
+          "firstname": "Zammad",
+          "lastname": "User",
+          "email": "user@example.org",
+          "organization": "ZammadTest",
+          "password": "ZAQ!2wsxcde3"
+        }
       ],
       "Settings": [
         {
