@@ -45,6 +45,34 @@ def ListTicket():
             ticket_info['customer_email'] = user_info.get('email', 'Unknown')
        return tickets
 
+
+@app.route('/showdatacatalog', methods=['GET'])
+def ShowDataCatalog():
+    ticket_id = request.args.get('ticketId', default=None)
+    print(f"Ticket ID: {ticket_id}")
+    article_response = requests.get(
+       f"{url}/api/v1/ticket_articles/by_ticket/{ticket_id}",
+       auth=HTTPBasicAuth(username, password)
+    )
+    
+    articles = article_response.json()
+    print(f"Articles: {articles}")
+    filtered_articles = [item for item in articles if 'attachments' in item and item['attachments']]
+    article_id = filtered_articles[0].get('id')
+    attachments = filtered_articles[0].get('attachments')
+    filtered_attachments = [item for item in attachments if 'filename' in item and item['filename'].endswith('.csv')]
+    attachment_id = filtered_attachments[0].get('id')
+
+    attachment_response = requests.get(
+       f"{url}/api/v1/ticket_attachment/{ticket_id}/{article_id}/{attachment_id}",
+       auth=HTTPBasicAuth(username, password)
+    )
+
+    attachment_output = attachment_response.text
+
+    return attachment_output
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=6080)
 

@@ -7,12 +7,13 @@ image:
 
 service:
   type: ClusterIP
-  port: 5005
-  targetPort: 5005
+  port: 6080
+  targetPort: 6080
 
 ingress:
   enabled: true
   # annotations, hosts, and other configurations go here
 
-sandboxUrl: http://denodo-sandbox.denodo-ns:9090/denodo-restfulws
-prodUrl: http://denodo.denodo-ns:9090/denodo-restfulws
+zammadUrl: http://zammad.zammad-ns:8080
+zammadUsr: email@example.org
+zammadPw: ZAQ!2wsxcde3

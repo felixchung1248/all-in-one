@@ -23,3 +23,10 @@ spec:
             name: {{ include "ticket-manage.fullname" . }}
             port:
               number: {{ .Values.service.port }}
+      - path: '/showdatacatalog'
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ include "ticket-manage.fullname" . }}
+            port:
+              number: {{ .Values.service.port }}
