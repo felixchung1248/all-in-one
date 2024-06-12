@@ -40,28 +40,26 @@ def ListAllDatasets():
         username = sandbox_username
         password = sandbox_password
 
+    params = {
+        '$format': 'json'
+    }
+
     if db:
         response = requests.get(
             f"{url}/{db}",
-            auth=HTTPBasicAuth(username, password)
+            auth=HTTPBasicAuth(username, password),
+            params=params
         )
+        
+
     else:
         return jsonify({"message": "No db parameter provided"}), 400
 
 
     if response.status_code == 200:
-        # Parse the HTML response using Beautiful Soup
-        soup = BeautifulSoup(response.text, 'html.parser')
-
-        # Find all <a> tags within the table's body
-        table_body = soup.find('tbody', class_='dt-data')
-        if table_body:
-            links = [a for a in table_body.find_all('a') if 'dt-data-search-view' not in a.get('class', [])]
-        else:
-            links = []
-
-        # Extract the text from the <a> tags and append to a list
-        catalog_names = [link.text for link in links]
+        response_json = response.json()
+        view_list = response_json['views-metadata']
+        catalog_names = [item['name'] for item in view_list]
     else:
         print(f"Failed to get metadata for dataset: {response.content}")
 
