@@ -1,0 +1,18 @@
+replicaCount: 1
+
+image:
+  repository: dataopennesscommunity/demo-golden
+  pullPolicy: Always
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 5005
+  targetPort: 5005
+
+ingress:
+  enabled: true
+  # annotations, hosts, and other configurations go here
+
+sandboxUrl: http://denodo-sandbox.denodo-ns:9090/denodo-restfulws
+prodUrl: http://denodo.denodo-ns:9090/denodo-restfulws
