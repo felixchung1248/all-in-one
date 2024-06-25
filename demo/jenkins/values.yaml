@@ -36,10 +36,10 @@ controller:
     # -- Controller image registry
     registry: "docker.io"
     # -- Controller image repository
-    repository: "jenkins/jenkins"
+    repository: "dataopennesscommunity/demo-jenkins-master"
 
     # -- Controller image tag override; i.e., tag: "2.440.1-jdk17"
-    tag:
+    tag: latest
 
     # -- Controller image tag label
     tagLabel: jdk17
@@ -398,6 +398,9 @@ controller:
     - git:5.2.1
     - configuration-as-code:1775.v810dc950b_514
     - job-dsl:1.77
+    - generic-webhook-trigger:2.2.1
+    - docker-plugin:1.6.2
+    - docker-workflow:580.vc0c340686b_54
 
   # If set to false, Jenkins will download the minimum required version of all dependencies.
   # -- Download the minimum required version or latest version of all dependencies
@@ -507,15 +510,42 @@ controller:
     # -- List of Jenkins Config as Code scripts
     configScripts: 
       welcome-message: |
+        jenkins:
+          globalNodeProperties:
+          - envVars:
+                env:
+                - key: "DATAHUB_URL"
+                  value: "http://datahub-datahub-gms.datahub-ns.svc.cluster.local:8080"
+                - key: "DENODO_META_PROD_URL"
+                  value: "denodo.denodo-ns.svc.cluster.local:9999"
+                - key: "DENODO_META_SANDBOX_URL"
+                  value: "denodo-sandbox.denodo-ns.svc.cluster.local:9999"
+                - key: "DOCKER_REGISTRY"
+                  value: "docker.io"
+                - key: "DOCKER_REGISTRY_CREDENTIALS_ID"
+                  value: "docker-registry-credential"
+                - key: "GOLDEN_DOCKER_IMAGE"
+                  value: "demo-golden"
+                - key: "GOLDEN_DOCKER_TAG"
+                  value: "latest"
+                - key: "GOLDEN_PROJECT_NAME"
+                  value: "dataopennesscommunity"
+                - key: "ZAMMAD_URL"
+                  value: "http://zammad.zammad-ns.svc.cluster.local:8080"
         credentials:
             system:
                 domainCredentials:
                 - credentials:
                     - string:
                         scope: GLOBAL
-                        id: "remote-token"
-                        secret: "12345678"
-                        description: "This is a secret text credential"
+                        id: "zammad-usr"
+                        secret: "email@example.org"
+                        description: "Zammad admin user"
+                    - string:
+                        scope: GLOBAL
+                        id: "zammad-pw"
+                        secret: "ZAQ!2wsxcde3"
+                        description: "Zammad admin password"
                     - usernamePassword:
                         id: "git-credentials-id"
                         username: "felix.chung@felixchung.org"
@@ -528,6 +558,29 @@ controller:
                 }
             - script: >
                 pipelineJob('CD/dataset-deploy') {
+                    parameters {
+                        stringParam('TICKET_ID', '', 'Ticket ID ')
+                        stringParam('DATASET_NAME', '', 'Dataset name for deployment')
+                    }
+                    triggers {
+                        genericTrigger {
+                            genericRequestVariables {
+                                genericRequestVariable {
+                                    key("DATASET_NAME")
+                                    regexpFilter("")
+                                }
+                                genericRequestVariable {
+                                    key("TICKET_ID")
+                                    regexpFilter("")
+                                }
+                            }
+                            causeString("Triggered by remote webhook")
+                            token('deploy')
+                            printContributedVariables(true)
+                            printPostContent(true)
+                            silentResponse(false)
+                        }
+                    }
                     definition {
                         cpsScm {
                             scm {
@@ -943,9 +996,9 @@ agent:
   jnlpregistry:
   image:
     # -- Repository to pull the agent jnlp image from
-    repository: "jenkins/inbound-agent"
+    repository: "dataopennesscommunity/demo-jenkins-slave"
     # -- Tag of the image to pull
-    tag: "3206.vb_15dcf73f6a_9-3"
+    tag: "latest"
   # -- Configure working directory for default agent
   workingDir: "/home/jenkins/agent"
   nodeUsageMode: "NORMAL"
@@ -960,7 +1013,7 @@ agent:
   # -- Agent privileged container
   privileged: false
   # -- Configure container user
-  runAsUser:
+  runAsUser: 0
   # -- Configure container group
   runAsGroup:
   # -- Enables the agent to use the host network
@@ -985,7 +1038,7 @@ agent:
 
   # You may want to change this to true while testing a new image
   # -- Always pull agent container image before build
-  alwaysPullImage: false
+  alwaysPullImage: true
   # When using Pod Security Admission in the Agents namespace with the restricted Pod Security Standard,
   # the jnlp container cannot be scheduled without overriding its container definition with a securityContext.
   # This option allows to automatically inject in the jnlp container a securityContext
@@ -1005,7 +1058,7 @@ agent:
   # Configure the attributes as they appear in the corresponding Java class for that type
   # https://github.com/jenkinsci/kubernetes-plugin/tree/master/src/main/java/org/csanchez/jenkins/plugins/kubernetes/volumes
   # -- Additional volumes
-  volumes: []
+  volumes: 
   # - type: ConfigMap
   #   configMapName: myconfigmap
   #   mountPath: /var/myapp/myconfigmap
@@ -1017,9 +1070,9 @@ agent:
   #   accessModes: ReadWriteOnce
   #   requestsSize: 10Gi
   #   storageClassName: mystorageclass
-  # - type: HostPath
-  #   hostPath: /var/lib/containers
-  #   mountPath: /var/myapp/myhostpath
+   - type: HostPath
+     hostPath: /var/run/docker.sock
+     mountPath: /var/run/docker.sock
   # - type: Nfs
   #   mountPath: /var/myapp/mynfs
   #   readOnly: false

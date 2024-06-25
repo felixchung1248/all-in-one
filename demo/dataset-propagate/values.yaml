@@ -7,8 +7,8 @@ image:
 
 service:
   type: ClusterIP
-  port: 5005
-  targetPort: 5005
+  port: 6005
+  targetPort: 6005
 
 ingress:
   enabled: true
