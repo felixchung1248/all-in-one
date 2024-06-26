@@ -11,7 +11,7 @@ service:
   targetPort: 9090
   nodePort: 30190
   nodePortSandbox: 30290
-  nodePortMeta: 30999
+  nodePortMeta: 31199
   nodePortMetaSandbox: 31999
   nodePortDb: 30996
   nodePortDbSandbox: 31996

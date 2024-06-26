@@ -3,13 +3,13 @@ import requests
 import logging
 import os
 from requests.auth import HTTPBasicAuth
-from bs4 import BeautifulSoup
 import json
 
 app = Flask(__name__)
 url = os.environ['ZAMMAD_URL']
 username = os.environ['ZAMMAD_USR']
 password = os.environ['ZAMMAD_PW']
+jenkins_wrapper_url = os.environ['JENKINS_WRAPPER_URL']
 
 
 @app.after_request
@@ -22,6 +22,39 @@ def after_request(response):
         response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
         response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
     return response
+
+@app.route('/approveticket', methods=['PUT'])
+def ApproveTicket():
+    ticket_id = request.args.get('ticketId', default=None)
+    dataset_name = request.args.get('datasetName', default=None)
+    data = {
+        'approved': 'true'
+    }
+
+    response = requests.put(
+       f"{url}/api/v1/tickets/{ticket_id}",
+       auth=HTTPBasicAuth(username, password)
+       ,data=data
+    )
+
+    if response.status_code == 200:
+        data = {
+            'DATASET_NAME': dataset_name
+            ,'TICKET_ID': ticket_id
+        }
+
+        params = {'token':'deploy'}
+
+        headers = {
+            'Content-Type': 'application/json' 
+        }
+        response = requests.post(
+            f"{jenkins_wrapper_url}/run-jenkins"
+            ,data = json.dumps(data)
+            ,params = params
+            ,headers = headers
+        )
+        return "ticket has been successfully approved"
 
 @app.route('/listticket', methods=['GET'])
 def ListTicket():
