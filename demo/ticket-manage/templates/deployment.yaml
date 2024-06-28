@@ -30,6 +30,8 @@ spec:
               value: {{ .Values.zammadUsr }}
             - name: ZAMMAD_PW
               value: {{ .Values.zammadPw }}
+            - name: JENKINS_WRAPPER_URL
+              value: {{ .Values.jenkinsWrapperUrl }}
       volumes:
         - name: python-script-volume
           configMap:
