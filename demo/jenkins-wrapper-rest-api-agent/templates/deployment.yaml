@@ -20,9 +20,12 @@ spec:
             - name: python-script-volume
               mountPath: /usr/src/app
           command: ["python3"]
-          args: ["/usr/src/app/jenkins-wrapper.py","-url","{{ .Values.url }}"]
+          args: ["/usr/src/app/jenkins-wrapper.py"]
           ports:
             - containerPort: 5000
+          env:
+            - name: JENKINS_URL
+              value: {{ .Values.url }}
       volumes:
         - name: python-script-volume
           configMap:

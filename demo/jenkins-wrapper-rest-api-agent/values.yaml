@@ -15,4 +15,4 @@ ingress:
   pathPrefix: /run-jenkins
   # annotations, hosts, and other configurations go here
 
-resources: {}
+url: http://jenkins.jenkins-ns:8080
