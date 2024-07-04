@@ -60,7 +60,7 @@ print(cached_views_as_turple)
 
 
     
-spark_sql = SparkSQL(schema=schema)
+spark_sql = SparkSQL(spark_session=spark, schema=schema)
 llm = ChatOpenAI(model=genai_model,temperature=0)
 toolkit = SparkSQLToolkit(db=spark_sql, llm=llm)
 agent_executor = create_spark_sql_agent(llm=llm, toolkit=toolkit, verbose=True,handle_parsing_errors=True) 
@@ -68,7 +68,7 @@ agent_executor = create_spark_sql_agent(llm=llm, toolkit=toolkit, verbose=True,h
 @app.route('/genai-response', methods=['POST'])
 def genAiResponse():
     global cached_views_as_turple
-    # Get the JSON from the POST request body
+    # # Get the JSON from the POST request body
     try:   
         result_proxy = engine.execute("LIST VIEWS ALL")
         views = result_proxy.fetchall()
@@ -76,9 +76,11 @@ def genAiResponse():
         print(cached_views_as_turple)
         print(views_as_turple_cur)
         new_views = [d for d in views_as_turple_cur if d not in cached_views_as_turple]
+        cached_views_as_turple = views_as_turple_cur
         print(new_views)
         for view in new_views:
-            result_proxy = engine.execute(f"select * from {view}")
+            view_name = view[0]
+            result_proxy = engine.execute(f"select * from {view_name}")
             pandas_df = pd.DataFrame(result_proxy.fetchall())   
             # Convert the Pandas DataFrame to a Spark DataFrame
             spark_df = spark.createDataFrame(pandas_df) 
@@ -87,7 +89,13 @@ def genAiResponse():
 
 
         json_array = request.get_json()
-        msg = json_array.get('msg')       
+        msg = json_array.get('msg')  
+
+        tables = spark.sql("SHOW TABLES")
+        tables.show()
+        
+        # toolkit = SparkSQLToolkit(db=spark_sql, llm=llm)
+        # agent_executor = create_spark_sql_agent(llm=llm, toolkit=toolkit, verbose=True,handle_parsing_errors=True)      
         result = agent_executor.run(msg)
         return result
     except exceptions.OutputParserException as e:
@@ -96,7 +104,7 @@ def genAiResponse():
         print(f"OutputParserException caught: {error_message}", flush=True)
         # Extract meaningful error message if it matches the expected pattern
         if error_message.startswith("Could not parse LLM output: `"):
-            error_message = error_message.removeprefix("Could not parse LLM output: `").removesuffix("`")
+            error_message = error_message.removeprefix("Could not parse LLM output: `")
         #return jsonify({"error": "Output parsing error", "details": error_message}), 500
     except ValueError as e:
         # Handle any other ValueError that might be related to parsing
@@ -107,6 +115,7 @@ def genAiResponse():
         # Check if we found a match
         if match:
             extracted_message = match.group(1)  # This is "I don't know"
+            print(extracted_message)
             return(extracted_message)
         else:
             return("I don't know")
