@@ -33,6 +33,8 @@ spec:
               value: {{ .Values.denodoUrl }}
             - name: GENAI_MODEL
               value: {{ .Values.genAiModel }}
+            - name: REDIS_URL
+              value: {{ .Values.redisUrl }}  
       volumes:
         - name: python-script-volume
           configMap:

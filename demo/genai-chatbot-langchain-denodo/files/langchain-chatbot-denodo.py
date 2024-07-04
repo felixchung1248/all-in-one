@@ -5,10 +5,12 @@ import sqlalchemy as db
 import pandas as pd
 from pyspark.sql import SparkSession
 from pyspark.sql.types import *
-import requests
 from flask import Flask,request
 
 from langchain.agents import create_spark_sql_agent
+from langchain_community.chat_message_histories import RedisChatMessageHistory
+from langchain_core.runnables.history import RunnableWithMessageHistory
+
 from langchain_community.agent_toolkits import SparkSQLToolkit
 from langchain_community.utilities.spark_sql import SparkSQL
 from langchain_openai import ChatOpenAI
@@ -22,7 +24,7 @@ import os
 app = Flask(__name__)
 denodo_url=os.environ['DENODO_URL']
 genai_model=os.environ['GENAI_MODEL']
-
+redis_url=os.environ['REDIS_URL']
 
 # Initialize Spark session
 spark = SparkSession.builder \
@@ -58,12 +60,11 @@ cached_views_as_turple = cache_views()
 
 print(cached_views_as_turple)
 
-
-    
-spark_sql = SparkSQL(spark_session=spark, schema=schema)
 llm = ChatOpenAI(model=genai_model,temperature=0)
-toolkit = SparkSQLToolkit(db=spark_sql, llm=llm)
-agent_executor = create_spark_sql_agent(llm=llm, toolkit=toolkit, verbose=True,handle_parsing_errors=True) 
+
+memory = RedisChatMessageHistory(
+    url=redis_url, ttl=600, session_id="my-session"
+)
 
 @app.route('/genai-response', methods=['POST'])
 def genAiResponse():
@@ -90,14 +91,30 @@ def genAiResponse():
 
         json_array = request.get_json()
         msg = json_array.get('msg')  
-
-        tables = spark.sql("SHOW TABLES")
-        tables.show()
         
-        # toolkit = SparkSQLToolkit(db=spark_sql, llm=llm)
-        # agent_executor = create_spark_sql_agent(llm=llm, toolkit=toolkit, verbose=True,handle_parsing_errors=True)      
-        result = agent_executor.run(msg)
-        return result
+        spark_sql = SparkSQL(spark_session=spark, schema=schema)
+        toolkit = SparkSQLToolkit(db=spark_sql, llm=llm)
+        agent_executor = create_spark_sql_agent(
+                    llm=llm
+                    ,toolkit=toolkit
+                    , verbose=True
+                    , handle_parsing_errors=True
+                )  
+        
+        agent_with_chat_history = RunnableWithMessageHistory(
+            agent_executor,
+            # This is needed because in most real world scenarios, a session id is needed
+            # It isn't really used here because we are using a simple in memory ChatMessageHistory
+            lambda session_id: memory,
+            input_messages_key="input",
+            history_messages_key="chat_history",
+        )
+
+        result = agent_with_chat_history.invoke(
+                    {"input": msg},
+                    config={"configurable": {"session_id": "test-session"}},
+                ) 
+        return result['output']
     except exceptions.OutputParserException as e:
         # Handle the specific OutputParserException
         error_message = str(e)
@@ -110,7 +127,7 @@ def genAiResponse():
         # Handle any other ValueError that might be related to parsing
         error_message = str(e)
         print(f"ValueError caught: {error_message}", flush=True)
-        match = re.search(r"Could not parse LLM output: `([^`]*)`", error_message)
+        match = re.search(r"Could not parse LLM output: `(.+)`", error_message, re.DOTALL)
 
         # Check if we found a match
         if match:

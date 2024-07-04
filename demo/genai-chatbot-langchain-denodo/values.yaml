@@ -19,4 +19,5 @@ ingress:
   
 denodoUrl: denodo://admin:admin@denodo.denodo-ns:9996/admin
 genAiModel: gpt-4o
+redisUrl: redis://redis-master.langchain-chatbot-denodo-ns:6379/0
   
