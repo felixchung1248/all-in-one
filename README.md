@@ -5,28 +5,25 @@ This repository allows you to quickly spin up a data management platform made wi
 
 
 ## Pre-requisite
-1. Prepare a machine running in Ubuntu with Internet access. (Mine was Ubuntu 20.04 with 8vcpu / 32g memory in Azure when I developed this platform). I recommend a new and clean machine to avoid any issue
-2. Copy the setup.sh file from this repository into your machine
-3. Run the setup.sh as below to Docker, Kubernetes and Helm in the machine
+1. Prepare a machine running in Ubuntu with Internet access. (Mine was Ubuntu 20.04 with 8vcpu / 32g memory in Azure Southeast Asia when I developed this platform). I recommend a new and clean machine to avoid any issue
+2. Download this repository into your machine
+3. Change the <Your VM IP> in demo/data-mgmt-portal-deploy/values.yaml to your machine public IP
+4. (Optional) Prepare your own OpenAI key if you want to try the Chatbot feature
+5. Run the setup.sh as below to install Docker, Kubernetes, Helm and all required applications on K8s in the machine (this takes 30 - 40 mins)
 ```bash
 export OPENAI_KEY=<Your OpenAI API key>  ## can skip this step if you don't need to use GenAI chatbot
-## Go to the directory containing the setup.sh
-chmod +x setup.sh
-./setup.sh
-
+chmod +x all-in-one/setup.sh
+./all-in-one/setup.sh
 ```
-4. Relogin the VM and open the proxy so you can access the K8s dashboard through browser
-```bash
-microk8s dashboard-proxy
-```
-5. Login to Jenkins using the below command to get the key
-![App Screenshot](https://live.staticflickr.com/65535/53514564865_48716bfc9b_o_d.png)
-```bash
-sudo cat <path shown on the screen>
-```
-6. Choose "Install suggested plugins"; and then skip and continue as admin; click "Not now" for Instance Configuration
 
 
 ## Links
-1. http://<Your VM IP>:30290/denodo-design-studio         Denodo Sandbox
-2. http://<Your VM IP>:30880      Zammad
+
+| Application | URL    | Description |
+| :-------- | :------- | :------- |
+| Data management portal | http://<Your VM IP>:30030 | Centralized portal for necessary data activities, e.g. dataset deployment, GenAI chatbot |
+| Denodo Sandbox | http://<Your VM IP>:30290/denodo-design-studio  | Core data platform for data users to perform testing |
+| Denodo Production | http://<Your VM IP>:30190/denodo-design-studio  |Core data platform for production use |
+| DataHub | http://<Your VM IP>:31002  | Data Catalog and data lineage |
+| Zammad | http://<Your VM IP>:30880  | ITSM (not necessary for data platform but to provide end-to-end governed data workflow) |
+| Jenkins | http://<Your VM IP>:30808  | CD pipeline for dataset deployment |
