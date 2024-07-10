@@ -1,7 +1,11 @@
 
 # Centralized data management platform sample
 
+## Introduction
 This repository allows you to quickly spin up a data management platform made with a number of open source applications in your own environment. It aims at giving you an idea of what a modernized data management looks like. Feel free to comment if you have any thought!
+
+## Background
+As you know, a modernized data management is not only IT-managed, but also a more complex and multi-dimensional data teams with the support of well-defined operating model. Decentralized data analytics (or the so-called "data-as-a-product", or "self-service") is more common in the market. This GitHub repository aims at giving you some ideas how the data platform can look like to facilitate this "self-service" operating model
 
 
 ## Pre-requisite
@@ -16,6 +20,11 @@ chmod +x all-in-one/setup.sh
 ./all-in-one/setup.sh
 ```
 
+## Features
+
+- Self-service dataset deployment from sandbox to production with governance
+- GenAI chatbot to query internal data 
+- Data marketplace (coming soon)
 
 ## Links
 
