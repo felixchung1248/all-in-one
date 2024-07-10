@@ -5,6 +5,12 @@ TIMEOUT=15m0s
 
 echo current user: $USER
 echo home path: $HOME
+
+SCRIPT_DIR=$(dirname "$0")
+
+# Change to that directory
+cd "$SCRIPT_DIR"
+
 # Add Docker's official GPG key:
 sudo apt-get update
 sudo apt-get install ca-certificates curl
