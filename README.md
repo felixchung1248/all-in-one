@@ -8,7 +8,7 @@ This repository allows you to quickly spin up a data management platform made wi
 As you know, a modernized data management is not only IT-managed, but also a more complex and multi-dimensional data teams with the support of well-defined operating model. Decentralized data analytics (or the so-called "data-as-a-product", or "self-service") is more common in the market. This GitHub repository aims at giving you some ideas how the data platform can look like to facilitate this "self-service" operating model
 
 
-## Pre-requisite
+## Installation
 1. Prepare a machine running in Ubuntu with Internet access. (Mine was Ubuntu 20.04 with 8vcpu / 32g memory in Azure Southeast Asia when I developed this platform). I recommend a new and clean machine to avoid any issue
 2. Download this repository into your machine
 3. Change the `<Your VM IP>` in demo/data-mgmt-portal-deploy/values.yaml to your machine public IP
@@ -18,6 +18,10 @@ As you know, a modernized data management is not only IT-managed, but also a mor
 export OPENAI_KEY=<Your OpenAI API key>  ## can skip this step if you don't need to use GenAI chatbot
 chmod +x all-in-one/setup.sh
 ./all-in-one/setup.sh
+```
+6. (Optional) if you like to access the K8s dashboard for troubleshooting, you might **open a new Putty session** and run the below command to access the K8s dashboard
+```bash
+microk8s dashboard-proxy
 ```
 
 ## Features
