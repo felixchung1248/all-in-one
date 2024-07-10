@@ -331,18 +331,32 @@ autoWizard:
       },
       "Users": [
         {
-          "login": "email@example.org",
+          "login": "admin@example.org",
           "firstname": "Zammad",
           "lastname": "Admin",
-          "email": "email@example.org",
+          "email": "admin@example.org",
           "organization": "ZammadTest",
           "password": "ZAQ!2wsxcde3"
         }
         ,{
-          "login": "user@example.org",
-          "firstname": "Zammad",
-          "lastname": "User",
+          "login": "felix@example.org",
+          "firstname": "Felix",
+          "lastname": "Chung",
           "email": "user@example.org",
+          "organization": "ZammadTest",
+          "password": "ZAQ!2wsxcde3"
+        },{
+          "login": "joris@example.org",
+          "firstname": "Joris",
+          "lastname": "Truong",
+          "email": "joris@example.org",
+          "organization": "ZammadTest",
+          "password": "ZAQ!2wsxcde3"
+        },{
+          "login": "john@example.org",
+          "firstname": "John",
+          "lastname": "Wong",
+          "email": "john@example.org",
           "organization": "ZammadTest",
           "password": "ZAQ!2wsxcde3"
         }
@@ -538,6 +552,6 @@ redis:
     #   memory: 256Mi
 
 zammadHost: http://zammad.zammad-ns:8080
-zammadUsr: email@example.org
+zammadUsr: admin@example.org
 zammadPw: ZAQ!2wsxcde3
 zammadToken: abcdefgh

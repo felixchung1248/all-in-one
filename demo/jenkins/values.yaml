@@ -539,7 +539,7 @@ controller:
                     - string:
                         scope: GLOBAL
                         id: "zammad-usr"
-                        secret: "email@example.org"
+                        secret: "admin@example.org"
                         description: "Zammad admin user"
                     - string:
                         scope: GLOBAL

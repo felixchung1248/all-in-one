@@ -15,6 +15,6 @@ ingress:
   # annotations, hosts, and other configurations go here
 
 zammadUrl: http://zammad.zammad-ns:8080
-zammadUsr: email@example.org
+zammadUsr: admin@example.org
 zammadPw: ZAQ!2wsxcde3
 jenkinsWrapperUrl: http://jenkins-wrapper.jenkins-wrapper-ns:5000
