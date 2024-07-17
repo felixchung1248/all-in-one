@@ -37,11 +37,9 @@ def submitTicket():
     include_keys = ['name', 'description', 'is_sensitive',
                     'data_type']
     
-    datasetPath = data[0].get("dataset_path")
-    batchKey = data[0].get("batch_key")
-    datasetName = data[0].get("dataset_name")
-    folderPath = data[0].get("folder_path")
-    customer = data[0].get("customer")
+    datasetPath = data.get("dataset_path")
+    customer = data.get("customer")
+    description = data.get("table_description")
 
 
     # Create an in-memory string buffer
@@ -54,7 +52,7 @@ def submitTicket():
     csvwriter.writerow(include_keys)
 
     # Write the data rows, filtering out only the included keys
-    for item in data:
+    for item in data.get("field_definition"):
         row = [item[key] for key in include_keys]  # Extract the desired keys
         csvwriter.writerow(row)
 
@@ -79,7 +77,7 @@ def submitTicket():
         "datasetname": datasetPath,
         "article": {
            "subject": "Request dataset deployment",
-           "body": f"Request dataset {datasetPath} production deployment. Please review the attached data mapping",
+           "body": description,
            "type": "note",
            "internal": False,
            "attachments": [

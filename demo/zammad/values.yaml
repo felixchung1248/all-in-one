@@ -342,7 +342,7 @@ autoWizard:
           "login": "felix@example.org",
           "firstname": "Felix",
           "lastname": "Chung",
-          "email": "user@example.org",
+          "email": "felix@example.org",
           "organization": "ZammadTest",
           "password": "ZAQ!2wsxcde3"
         },{
