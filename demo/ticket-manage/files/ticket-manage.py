@@ -71,13 +71,21 @@ def ListTicket():
        users = result.get('assets').get('User')
        tickets = result.get('assets').get('Ticket')
        for ticket_id, ticket_info in tickets.items():
+            response = requests.get(
+                       f"{url}/api/v1/ticket_articles/by_ticket/{ticket_id}",
+                       auth=HTTPBasicAuth(username, password)
+                    )
+            if response.status_code == 200:
+                response_json = response.json()
+                table_description = response_json[0]['body']
+
             customer_id = str(ticket_info['customer_id'])  # Ensure the key is a string for lookup
             user_info = users.get(customer_id, {})  # Get user details or an empty dict if not found
-
             # Adding user details to the ticket information
             ticket_info['customer_firstname'] = user_info.get('firstname', 'Unknown')
             ticket_info['customer_lastname'] = user_info.get('lastname', 'Unknown')
             ticket_info['customer_email'] = user_info.get('email', 'Unknown')
+            ticket_info['table_description'] = table_description
        return tickets
 
 
