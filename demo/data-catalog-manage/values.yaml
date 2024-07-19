@@ -1,0 +1,19 @@
+replicaCount: 1
+
+image:
+  repository: dataopennesscommunity/demo-golden
+  pullPolicy: Always
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 7000
+  targetPort: 7000
+
+ingress:
+  enabled: true
+  # annotations, hosts, and other configurations go here
+
+dataCatalogUrl: http://datahub-datahub-gms.datahub-ns:8080
+dataCatalogUsr: datahub
+dataCatalogPw: datahub

@@ -577,7 +577,12 @@ controller:
                                 genericRequestVariable {
                                     key("DATASET_OWNER")
                                     regexpFilter("")
-                                }                              
+                                } 
+                                genericRequestVariable {
+                                    key("DATASET_DESCRIPTION")
+                                    regexpFilter("")
+                                }                                  
+                                
                             }
                             causeString("Triggered by remote webhook")
                             token('deploy')
