@@ -562,6 +562,7 @@ controller:
                         stringParam('TICKET_ID', '', 'Ticket ID ')
                         stringParam('DATASET_NAME', '', 'Dataset name for deployment')
                         stringParam('DATASET_OWNER', '', 'Dataset owner')
+                        stringParam('DATASET_DESCRIPTION', '', 'Dataset description')
                     }
                     triggers {
                         genericTrigger {
