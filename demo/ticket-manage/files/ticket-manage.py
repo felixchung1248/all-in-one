@@ -28,6 +28,7 @@ def ApproveTicket():
     ticket_id = request.args.get('ticketId', default=None)
     dataset_name = request.args.get('datasetName', default=None)
     dataset_owner = request.args.get('datasetOwner', default=None)
+    dataset_description = request.args.get('datasetDescription', default=None)
     data = {
         'approved': 'true'
     }
@@ -43,6 +44,7 @@ def ApproveTicket():
             'DATASET_NAME': dataset_name
             ,'TICKET_ID': ticket_id
             ,'DATASET_OWNER': dataset_owner
+            ,'DATASET_DESCRIPTION': dataset_description
         }
 
         params = {'token':'deploy'}
