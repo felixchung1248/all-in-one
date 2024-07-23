@@ -4,6 +4,9 @@ import logging
 import os
 from requests.auth import HTTPBasicAuth
 import json
+from datahub.ingestion.graph.client import DataHubGraph, DatahubClientConfig
+from datahub.specific.dataset import DatasetPatchBuilder
+
 
 app = Flask(__name__)
 datahub_url = os.environ['DATA_CATALOG_URL']
@@ -155,7 +158,39 @@ def ListAllDataCatalogDatasets():
         print(f"Failed to get metadata for dataset: {response.content}")
         return "Error occurred", 400
 
-    
+
+@app.route('/rate-dataset', methods=['POST'])
+def rate_dataset():
+    logging.info("rate_dataset() function processed a request.")
+    result = {}
+    try:
+        rating = request.args.get("rating")
+        dataset_name = request.args.get("dataset_name")
+        client = DataHubGraph(DatahubClientConfig(server=datahub_url))
+        urns = client.get_urns_by_filter(entity_types=["dataset"], query=dataset_name)
+        urn = next(urns)
+        current_rating = float(client.get_dataset_properties(urn).customProperties["rating"])
+        if current_rating == -1:
+            rating_count = 1
+        else:
+            rating = (current_rating + rating)/2
+            rating_count = int(client.get_dataset_properties(urn).customProperties["rating_count"]) + 1
+            
+        for patch_mcp in (
+                DatasetPatchBuilder(urn).set_custom_properties({
+                "rating": str(rating),
+                "rating_count": str(rating_count)
+            }).build()
+        ):
+            client.emit(patch_mcp)
+            result["code"] = 200
+            result["message"] = "Success"
+    except Exception as e:
+        logging.exception(f"Error: {e}")
+        result["code"] = 400
+        result["message"] = f"Error: {e}"
+    return result
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=7011)
