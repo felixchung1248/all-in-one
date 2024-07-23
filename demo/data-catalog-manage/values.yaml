@@ -7,8 +7,8 @@ image:
 
 service:
   type: ClusterIP
-  port: 7000
-  targetPort: 7000
+  port: 7011
+  targetPort: 7011
 
 ingress:
   enabled: true

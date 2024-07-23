@@ -816,3 +816,4 @@ global:
 #    ssl.endpoint.identification.algorithm:
 #    basic.auth.credentials.source: USER_INFO
 #    basic.auth.user.info:
+datahubHost: http://datahub-datahub-gms.datahub-ns:8080

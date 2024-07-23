@@ -6,7 +6,7 @@ from requests.auth import HTTPBasicAuth
 import json
 
 app = Flask(__name__)
-datahub_url = os.environ['DATAHUB_URL']
+datahub_url = os.environ['DATA_CATALOG_URL']
 
 # Function to retrieve value by key
 def get_value_by_key(data, search_key):
@@ -63,12 +63,6 @@ def ListAllDataCatalogDatasets():
         view_list = response_json['data']['search']['searchResults']
         for item in view_list:
             dataset_name = item['entity']['name']
-            
-            # urn_str = item['entity']['urn'].split('(')[1].split(')')[0]
-            # urn_itm = urn_str.split(',')
-            # dataset_name = urn_itm[1]
-
-
             query = f"""
                 {{
                   dataset(urn: "{item['entity']['urn']}") {{
@@ -77,6 +71,25 @@ def ListAllDataCatalogDatasets():
                     ,customProperties{{
                          key,value
                     }}
+                  }}
+                  schemaMetadata{{
+                      fields{{
+                          fieldPath
+                          ,description
+                          ,type
+                          ,tags {{
+                            tags {{
+                              tag {{
+                                name
+                                urn
+                                  properties {{
+                                    description
+                                    colorHex
+                                  }}
+                              }}
+                            }}
+                          }}
+                      }}
                   }}
                     ownership 
                     {{
@@ -112,7 +125,14 @@ def ListAllDataCatalogDatasets():
             table_description = dataset['properties']['description']
             rating = get_value_by_key(dataset['properties']['customProperties'],'rating')
             rating = rating if int(rating) > -1 else 'No rating'
-
+            fields = dataset['schemaMetadata']
+            
+            for field in fields['fields']:
+              if field['tags'] is not None and any(item['tag']['name'] == 'sensitive' for item in field['tags']['tags']):
+                field['isSensitive'] = "True"
+              else:
+                field['isSensitive'] = "False"
+                
             for owner in owners:
                 user_urn = owner['owner']['urn']
                 response = requests.get(f"{datahub_url}/entities/{user_urn}", headers=headers)
@@ -127,7 +147,7 @@ def ListAllDataCatalogDatasets():
                     else:
                         owner_name = "Name not found"
                 owner['owner_name'] = owner_name
-            info = {"dataset_name": dataset_name, "owners": owners, "table_description": table_description, "rating": rating}
+            info = {"dataset_name": dataset_name, "owners": owners, "table_description": table_description, "rating": rating, "fields":fields}
             final_list.append(info)
          
         return jsonify(final_list)   
