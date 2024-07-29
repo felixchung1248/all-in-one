@@ -127,7 +127,7 @@ def ListAllDataCatalogDatasets():
             owners = ownership['owners']
             table_description = dataset['properties']['description']
             rating = get_value_by_key(dataset['properties']['customProperties'],'rating')
-            rating = rating if int(rating) > -1 else 'No rating'
+            rating = rating if float(rating) > -1 else 'No rating'
             fields = dataset['schemaMetadata']
             
             for field in fields['fields']:
@@ -164,7 +164,7 @@ def rate_dataset():
     logging.info("rate_dataset() function processed a request.")
     result = {}
     try:
-        rating = request.args.get("rating")
+        rating = float(request.args.get("rating"))
         dataset_name = request.args.get("dataset_name")
         client = DataHubGraph(DatahubClientConfig(server=datahub_url))
         urns = client.get_urns_by_filter(entity_types=["dataset"], query=dataset_name)
@@ -185,6 +185,7 @@ def rate_dataset():
             client.emit(patch_mcp)
             result["code"] = 200
             result["message"] = "Success"
+            result["rating"] = rating
     except Exception as e:
         logging.exception(f"Error: {e}")
         result["code"] = 400
