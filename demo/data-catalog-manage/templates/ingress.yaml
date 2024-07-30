@@ -16,3 +16,10 @@ spec:
             name: {{ include "data-catalog-manage.fullname" . }}
             port:
               number: {{ .Values.service.port }}
+      - path: '/rate-dataset'
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ include "data-catalog-manage.fullname" . }}
+            port:
+              number: {{ .Values.service.port }}
